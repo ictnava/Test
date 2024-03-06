@@ -1,11 +1,9 @@
 # create build container containing sdk
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.19-amd64 AS build
 WORKDIR /source
-COPY /Nuget.config  /source/
-COPY /src /source/src
 COPY /BlazorApp.sln /source/
 
-RUN dotnet publish BlazorApp.sln --configfile Nuget.config  -c Release -o /app
+RUN dotnet publish BlazorApp.sln --configfile Nuget.config -c Debug -o /app
 
 # create base container with runtime
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.19-amd64 AS base
