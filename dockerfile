@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.19-amd64 AS build
 WORKDIR /source
 COPY /BlazorApp.sln /source/
-
+COPY /src /source/src
 RUN dotnet publish BlazorApp.sln --configfile Nuget.config -c Debug -o /app
 
 # create base container with runtime
