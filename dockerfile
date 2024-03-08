@@ -6,7 +6,7 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.19-amd64 AS build
 WORKDIR /src
 COPY ["BlazorApp/BlazorApp.csproj", "."]
-RUN dotnet restore "BlazorApp/BlazorApp.csproj"
+RUN dotnet restore "BlazorApp.csproj"
 COPY . .
 RUN dotnet build "BlazorApp.csproj" -c Release -o /app/build
 
