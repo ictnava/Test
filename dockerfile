@@ -1,23 +1,19 @@
-# create build container containing sdk
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.19-amd64 AS build
-WORKDIR /source
-COPY /BlazorApp.sln /source/
-COPY /src /source/src
-RUN dotnet publish BlazorApp.sln --configfile Nuget.config -c Debug -o /app
-
-# create base container with runtime
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.19-amd64 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine-amd64 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
-RUN apk add --no-cache icu-libs
-RUN apk add --no-cache tzdata
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT false
 
-# create final container to deployed application
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine3.19-amd64 AS build
+WORKDIR /src
+COPY ["BlazorApp.csproj", "."]
+RUN dotnet restore "BlazorApp.csproj"
+COPY . .
+RUN dotnet build "BlazorApp.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "BlazorApp.csproj" -c Release -o /app/publish
+
 FROM base AS final
 WORKDIR /app
-COPY --from=build /app .
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-ENV ASPNETCORE_URLS=http://+;https://+
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "BlazorApp.dll"]
